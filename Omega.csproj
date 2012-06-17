@@ -59,19 +59,21 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actor.cs" />
+    <Compile Include="Audio\AudioManager.cs" />
+    <Compile Include="SceneGraph\Actor.cs" />
     <Compile Include="Graphics\Camera\Camera2D.cs" />
     <Compile Include="Graphics\Camera\Camera3D.cs" />
     <Compile Include="Graphics\Particles\Particle.cs" />
     <Compile Include="Graphics\Particles\ParticleManager.cs" />
     <Compile Include="Graphics\Primitives\LineBatch3D.cs" />
+    <Compile Include="Graphics\Primitives\PointBatch3D.cs" />
     <Compile Include="Input\VirtualThumbsticks.cs" />
     <Compile Include="Graphics\Postprocessing\MotionBlur.cs" />
     <Compile Include="Graphics\Postprocessing\Postprocess.cs" />
     <Compile Include="Graphics\Postprocessing\Bloom.cs" />
     <Compile Include="Graphics\Primitives\PrimitiveBatch2D.cs" />
     <Compile Include="Networking\GameClient.cs" />
-    <Compile Include="Scene.cs" />
+    <Compile Include="SceneGraph\Scene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

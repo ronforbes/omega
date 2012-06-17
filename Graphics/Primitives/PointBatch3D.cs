@@ -1,6 +1,6 @@
 #region File Description
 //-----------------------------------------------------------------------------
-// LineBatch.cs
+// PointBatch3D.cs
 //
 // Microsoft XNA Community Game Platform
 // Copyright (C) Microsoft Corporation. All rights reserved.
@@ -17,9 +17,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Omega
 {
-    // LineBatch is a class that handles efficient rendering automatically for its
+    // PointBatch is a class that handles efficient rendering automatically for its
     // users, in a similar way to SpriteBatch.
-    public class LineBatch3D : IDisposable
+    public class PointBatch3D : IDisposable
     {
         #region Constants and Fields
 
@@ -29,31 +29,29 @@ namespace Omega
         const int VertexBufferSize = 400;
         const int IndexBufferSize = 600;
 
-        // a block of vertices that calling Add will fill. Flush will draw using
+        // blocks of vertices and indices that calling Draw will fill. Flush will draw using
         // this array, and will determine how many primitives to draw from
-        // positionInBuffer.
+        // vertexBufferPosition.
         VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[VertexBufferSize];
-        
         short[] indices = new short[IndexBufferSize];
 
-        // keeps track of how many vertices have been added. this value increases until
+        // keeps track of how many vertices and indices have been added. this value increases until
         // we run out of space in the buffer, at which time Flush is automatically
         // called.
         int vertexBufferPosition = 0;
-
         int indexBufferPosition = 0;
 
         // a basic effect, which contains the shaders that we will use to draw our
-        // lines.
+        // points.
         BasicEffect basicEffect;
 
-        // a texture that will be drawn on the lines
+        // a texture that will be drawn on the points
         Texture2D texture;
 
         // the device that we will issue draw calls to.
         GraphicsDevice graphicsDevice;
 
-        // a line is composed of 6 vertices specified as a triangle list.
+        // a point is composed of 6 vertices and 4 indices specified as a triangle list.
         const int verticesPerLine = 4;
         const int indicesPerLine = 6;
 
@@ -65,9 +63,9 @@ namespace Omega
 
         #endregion
 
-        // the constructor creates a new LineBatch and sets up all of the internals
-        // that LineBatch will need.
-        public LineBatch3D(GraphicsDevice graphicsDevice, ContentManager contentManager)
+        // the constructor creates a new PointBatch and sets up all of the internals
+        // that PointBatch will need.
+        public PointBatch3D(GraphicsDevice graphicsDevice, ContentManager contentManager)
         {
             if (graphicsDevice == null)
             {
@@ -76,13 +74,13 @@ namespace Omega
             this.graphicsDevice = graphicsDevice;
 
             // set up a texture
-            texture = contentManager.Load<Texture2D>("LineTexture");
+            texture = contentManager.Load<Texture2D>("PointTexture");
 
             // set up a new basic effect, and enable lighting and texture mapping.
             basicEffect = new BasicEffect(graphicsDevice);
-            basicEffect.VertexColorEnabled = true;
             basicEffect.TextureEnabled = true;
             basicEffect.Texture = texture;
+            basicEffect.VertexColorEnabled = true;
         }
 
         public void Dispose()
@@ -102,7 +100,7 @@ namespace Omega
             }
         }
 
-        // Begin is called to tell the LineBatch what camera to draw from, 
+        // Begin is called to tell the PointBatch what camera to draw from, 
         // and to prepare the graphics card to render those primitives.
         public void Begin(Matrix world, Camera3D camera)
         {
@@ -124,11 +122,11 @@ namespace Omega
             hasBegun = true;
         }
 
-        // Draw is called to add another line to be rendered.
+        // Draw is called to add another point to be rendered.
         // this function can only be called once begin has been called.
         // if there is not enough room in the vertices buffer, Flush is called
         // automatically.
-        public void Draw(Vector3 startPosition, Vector3 endPosition, float width, Color color)
+        public void Draw(Vector3 position, float radius, Color color)
         {
             if (!hasBegun)
             {
@@ -142,30 +140,19 @@ namespace Omega
 
             // once we know there's enough room, set the vertex in the buffer,
             // and increase position.
-            Vector3 delta = endPosition - startPosition;
-            float angle = (float)Math.Atan2(delta.Y, delta.X);
-
-            vertices[vertexBufferPosition + 0].Position = new Vector3(startPosition.X + (float)Math.Cos(angle + MathHelper.PiOver2) * width / 2, 
-                                                                  startPosition.Y + (float)Math.Sin(angle + MathHelper.PiOver2) * width / 2, 
-                                                                  startPosition.Z);
+            vertices[vertexBufferPosition + 0].Position = new Vector3(position.X - radius, position.Y + radius, position.Z);
             vertices[vertexBufferPosition + 0].Color = color;
             vertices[vertexBufferPosition + 0].TextureCoordinate = Vector2.Zero;
 
-            vertices[vertexBufferPosition + 1].Position = new Vector3(startPosition.X - (float)Math.Cos(angle + MathHelper.PiOver2) * width / 2,
-                                                                  startPosition.Y - (float)Math.Sin(angle + MathHelper.PiOver2) * width / 2,
-                                                                  startPosition.Z);
+            vertices[vertexBufferPosition + 1].Position = new Vector3(position.X - radius, position.Y - radius, position.Z);
             vertices[vertexBufferPosition + 1].Color = color;
             vertices[vertexBufferPosition + 1].TextureCoordinate = Vector2.UnitY;
 
-            vertices[vertexBufferPosition + 2].Position = new Vector3(endPosition.X + (float)Math.Cos(angle + MathHelper.PiOver2) * width / 2,
-                                                                  endPosition.Y + (float)Math.Sin(angle + MathHelper.PiOver2) * width / 2,
-                                                                  endPosition.Z);
+            vertices[vertexBufferPosition + 2].Position = new Vector3(position.X + radius, position.Y + radius, position.Z);
             vertices[vertexBufferPosition + 2].Color = color;
             vertices[vertexBufferPosition + 2].TextureCoordinate = Vector2.UnitX;
 
-            vertices[vertexBufferPosition + 3].Position = new Vector3(endPosition.X - (float)Math.Cos(angle + MathHelper.PiOver2) * width / 2,
-                                                                  endPosition.Y - (float)Math.Sin(angle + MathHelper.PiOver2) * width / 2,
-                                                                  endPosition.Z);
+            vertices[vertexBufferPosition + 3].Position = new Vector3(position.X + radius, position.Y - radius, position.Z);
             vertices[vertexBufferPosition + 3].Color = color;
             vertices[vertexBufferPosition + 3].TextureCoordinate = Vector2.One;
 
@@ -180,7 +167,7 @@ namespace Omega
             indexBufferPosition += indicesPerLine;
         }
 
-        // End is called once all the lines have been drawn using Add.
+        // End is called once all the points have been drawn using Draw.
         // it will call Flush to actually submit the draw call to the graphics card, and
         // then tell the basic effect to end.
         public void End()
@@ -198,7 +185,7 @@ namespace Omega
         }
 
         // Flush is called to issue the draw call to the graphics card. Once the draw
-        // call is made, positionInBuffer is reset, so that Add can start over
+        // call is made, vertexBufferPosition and indexBufferPosition are reset, so that Draw can start over
         // at the beginning. End will call this to draw the primitives that the user
         // requested, and Add will call this if there is not enough room in the
         // buffer.
@@ -220,7 +207,7 @@ namespace Omega
             // submit the draw call to the graphics card
             graphicsDevice.DrawUserIndexedPrimitives<VertexPositionColorTexture>(PrimitiveType.TriangleList, vertices, 0, vertexBufferPosition, indices, 0, primitiveCount);
 
-            // now that we've drawn, it's ok to reset positionInBuffer back to zero,
+            // now that we've drawn, it's ok to reset vertexBufferPosition and indexBufferPosition back to zero,
             // and write over any vertices that may have been set previously.
             vertexBufferPosition = 0;
             indexBufferPosition = 0;

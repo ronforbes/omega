@@ -8,9 +8,9 @@ using System.Resources;
 // associated with an assembly.
 [assembly: AssemblyTitle("Omega")]
 [assembly: AssemblyProduct("Omega")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2012")]
+[assembly: AssemblyDescription("Windows phone game engine")]
+[assembly: AssemblyCompany("Omega")]
+[assembly: AssemblyCopyright("Copyright © Omega 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

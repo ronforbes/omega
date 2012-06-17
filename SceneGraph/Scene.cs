@@ -1,21 +1,18 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
-using Microsoft.Xna.Framework.Media;
 
 namespace Omega
 {
     public class Scene
     {
         GraphicsDevice graphicsDevice;
+        LineBatch3D lineBatch;
+        PointBatch3D pointBatch;
         SpriteBatch spriteBatch;
+        PrimitiveBatch2D primitiveBatch;
+        SpriteFont spriteFont;
         RenderTarget2D renderTarget;
 
         public Color ClearColor;
@@ -27,13 +24,18 @@ namespace Omega
         public Scene(GraphicsDevice graphicsDevice)
         {
             this.graphicsDevice = graphicsDevice;
-            
+
             ClearColor = Color.Black;
 
             Camera = new Camera3D(new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height));
 
             actors = new List<Actor>();
             postprocesses = new List<Postprocess>();
+
+            PresentationParameters pp = graphicsDevice.PresentationParameters;
+
+            // Setup scene render target
+            renderTarget = new RenderTarget2D(graphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, pp.BackBufferFormat, pp.DepthStencilFormat, pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
         }
 
         public void AddActor(Actor actor)
@@ -49,20 +51,29 @@ namespace Omega
         public void LoadContent(ContentManager contentManager)
         {
             spriteBatch = new SpriteBatch(graphicsDevice);
+            lineBatch = new LineBatch3D(graphicsDevice, contentManager);
+            pointBatch = new PointBatch3D(graphicsDevice, contentManager);
+            primitiveBatch = new PrimitiveBatch2D(graphicsDevice);
+            spriteFont = contentManager.Load<SpriteFont>("SpriteFont");
 
-            PresentationParameters pp = graphicsDevice.PresentationParameters;
+            foreach (Actor a in actors)
+            {
+                a.SpriteBatch = spriteBatch;
+                a.LineBatch = lineBatch;
+                a.PointBatch = pointBatch;
+                a.PrimitiveBatch = primitiveBatch;
+                a.SpriteFont = spriteFont;
 
-            // Setup scene render target
-            renderTarget = new RenderTarget2D(graphicsDevice, pp.BackBufferWidth, pp.BackBufferHeight, false, pp.BackBufferFormat, pp.DepthStencilFormat, pp.MultiSampleCount, RenderTargetUsage.DiscardContents);
-
-            foreach (Actor actor in actors)
-                actor.LoadContent(graphicsDevice, contentManager);
+                a.LoadContent(contentManager);
+            }
         }
 
         public void Update()
         {
             foreach (Actor actor in actors)
                 actor.Update();
+
+            Camera.Update();
         }
 
         public void Draw()

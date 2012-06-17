@@ -1,38 +1,28 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Omega
 {
     public class ParticleManager : Actor
     {
         List<Particle> particles;
-        LineBatch3D lineBatch;
-
-        const int particleCapacity = 10000;
         
         static Random random = new Random();
 
-        public ParticleManager()
+        public ParticleManager(int particleCapacity) : base(null)
         {
             particles = new List<Particle>(particleCapacity);
-        }
 
-        public override void LoadContent(GraphicsDevice graphicsDevice, ContentManager contentManager)
-        {
-            for (int i = 0; i < particleCapacity; i++)
+            for (int i = 0; i < particles.Capacity; i++)
             {
                 particles.Add(new Particle());
             }
-
-            lineBatch = new LineBatch3D(graphicsDevice, contentManager);
         }
 
         public void CreateParticleEffect(int particleCount, Vector3 position, int radius, Color color)
         {
-            for(int i = 0; i < particleCapacity; i++)
+            for(int i = 0; i < particles.Capacity; i++)
             {
                 if(!particles[i].Active)
                 {
@@ -40,8 +30,8 @@ namespace Omega
                     float angle = MathHelper.ToRadians(random.Next(0, 360));
                     int speed = random.Next(radius);
                     particles[i].Velocity = new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0.0f) * speed;
-                    float intensity = (float)random.NextDouble();
-                    particles[i].Color = new Color(color.R * intensity, color.G * intensity, color.B * intensity, color.A * intensity);
+                    int intensity = random.Next(128);
+                    particles[i].Color = new Color(color.R - intensity, color.G - intensity, color.B - intensity, color.A - intensity);
                     particles[i].Active = true;
                     particles[i].Life = 100;
 
@@ -65,15 +55,17 @@ namespace Omega
         {
             Matrix translation = Matrix.CreateTranslation(0.0f, 0.0f, -500.0f);
 
-            lineBatch.Begin(translation, camera, new Vector3(0.8f, 0.8f, 0.8f));
+            LineBatch.Begin(translation, camera);
+            PointBatch.Begin(translation, camera);
 
             foreach (Particle p in particles)
             {
                 if (p.Active)
-                    p.Draw(lineBatch);
+                    p.Draw(LineBatch, PointBatch);
             }
 
-            lineBatch.End();
+            PointBatch.End();
+            LineBatch.End();
         }
     }
 }

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 
 namespace Omega
@@ -12,6 +8,7 @@ namespace Omega
         public Vector3 Target = Vector3.Zero;
         public Vector3 Up = Vector3.Up;
         public Rectangle ScreenDimensions;
+        public Actor TargetActor;
 
         public Matrix World = Matrix.Identity;
         
@@ -28,6 +25,15 @@ namespace Omega
         public Camera3D(Rectangle screenDimensions)
         {
             ScreenDimensions = screenDimensions;
+        }
+
+        public void Update()
+        {
+            if (TargetActor != null)
+            {
+                Position = new Vector3(TargetActor.Position.X, TargetActor.Position.Y, 1.0f);
+                Target = new Vector3(TargetActor.Position.X, TargetActor.Position.Y, 0.0f);
+            }
         }
     }
 }
