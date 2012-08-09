@@ -10,10 +10,13 @@ namespace Omega
         
         static Random random = new Random();
 
-        public ParticleManager(int particleCapacity) : base(null)
+        public ParticleManager(int particleCapacity) : base()
         {
             particles = new List<Particle>(particleCapacity);
+        }
 
+        public void CreateParticles()
+        {
             for (int i = 0; i < particles.Capacity; i++)
             {
                 particles.Add(new Particle());
@@ -42,12 +45,12 @@ namespace Omega
             }
         }
 
-        public override void Update()
+        public override void Update(GameTimerEventArgs e)
         {
             foreach (Particle p in particles)
             {
                 if (p.Active)
-                    p.Update();
+                    p.Update(e);
             }
         }
 

@@ -8,18 +8,19 @@ namespace Omega
     public class Scene
     {
         GraphicsDevice graphicsDevice;
-        LineBatch3D lineBatch;
-        PointBatch3D pointBatch;
-        SpriteBatch spriteBatch;
-        PrimitiveBatch2D primitiveBatch;
-        SpriteFont spriteFont;
-        RenderTarget2D renderTarget;
-
+        
+        public LineBatch3D LineBatch;
+        public PointBatch3D PointBatch;
+        public SpriteBatch SpriteBatch;
+        public PrimitiveBatch2D PrimitiveBatch;
+        public SpriteFont SpriteFont;
+        public ContentManager ContentManager;
         public Color ClearColor;
         public Camera3D Camera;
-
+        
         List<Actor> actors;
         List<Postprocess> postprocesses;
+        RenderTarget2D renderTarget;
 
         public Scene(GraphicsDevice graphicsDevice)
         {
@@ -40,7 +41,13 @@ namespace Omega
 
         public void AddActor(Actor actor)
         {
+            actor.Scene = this;
             actors.Add(actor);
+        }
+
+        public void RemoveActor(Actor actor)
+        {
+            actors.Remove(actor);
         }
 
         public void AddPostprocess(Postprocess postprocess)
@@ -50,33 +57,28 @@ namespace Omega
 
         public void LoadContent(ContentManager contentManager)
         {
-            spriteBatch = new SpriteBatch(graphicsDevice);
-            lineBatch = new LineBatch3D(graphicsDevice, contentManager);
-            pointBatch = new PointBatch3D(graphicsDevice, contentManager);
-            primitiveBatch = new PrimitiveBatch2D(graphicsDevice);
-            spriteFont = contentManager.Load<SpriteFont>("SpriteFont");
+            SpriteBatch = new SpriteBatch(graphicsDevice);
+            LineBatch = new LineBatch3D(graphicsDevice, contentManager);
+            PointBatch = new PointBatch3D(graphicsDevice, contentManager);
+            PrimitiveBatch = new PrimitiveBatch2D(graphicsDevice);
+            SpriteFont = contentManager.Load<SpriteFont>("SpriteFont");
+            ContentManager = contentManager;
 
             foreach (Actor a in actors)
             {
-                a.SpriteBatch = spriteBatch;
-                a.LineBatch = lineBatch;
-                a.PointBatch = pointBatch;
-                a.PrimitiveBatch = primitiveBatch;
-                a.SpriteFont = spriteFont;
-
                 a.LoadContent(contentManager);
             }
         }
 
-        public void Update()
+        public virtual void Update(GameTimerEventArgs e)
         {
             foreach (Actor actor in actors)
-                actor.Update();
+                actor.Update(e);
 
-            Camera.Update();
+            Camera.Update(e);
         }
 
-        public void Draw()
+        public virtual void Draw()
         {
             graphicsDevice.SetRenderTarget(renderTarget);
             graphicsDevice.Clear(ClearOptions.Target, ClearColor, 0, 0);

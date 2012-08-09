@@ -20,7 +20,7 @@ namespace Omega
             Active = false;
         }
 
-        public void Update()
+        public void Update(GameTimerEventArgs e)
         {
             if (Active)
             {

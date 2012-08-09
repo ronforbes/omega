@@ -43,7 +43,7 @@ namespace Omega
 
         public Actor TargetListener;
 
-        public AudioManager(bool soundEnabled, float soundVolume, bool musicEnabled, float musicVolume) : base(null)
+        public AudioManager(bool soundEnabled, float soundVolume, bool musicEnabled, float musicVolume) : base()
         {
             sounds = new Dictionary<string, SoundEffect>();
             songs = new Dictionary<string, Song>();
@@ -125,7 +125,7 @@ namespace Omega
                 MediaPlayer.Stop();
         }
 
-        public override void Update()
+        public override void Update(GameTimerEventArgs e)
         {
             if (TargetListener != null)
             {
@@ -133,7 +133,7 @@ namespace Omega
                 listener.Velocity = TargetListener.Velocity;
             }
 
-            base.Update();
+            base.Update(e);
         }
     }
 }

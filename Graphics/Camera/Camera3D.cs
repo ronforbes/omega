@@ -27,7 +27,7 @@ namespace Omega
             ScreenDimensions = screenDimensions;
         }
 
-        public void Update()
+        public void Update(GameTimerEventArgs e)
         {
             if (TargetActor != null)
             {

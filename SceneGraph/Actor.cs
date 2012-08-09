@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,46 +14,50 @@ namespace Omega
         public Vector3 Acceleration;
         public float Rotation;
         public float Radius;
-
         public SpriteBatch SpriteBatch;
         public LineBatch3D LineBatch;
         public PointBatch3D PointBatch;
         public PrimitiveBatch2D PrimitiveBatch;
         public SpriteFont SpriteFont;
-
+        public Scene Scene;
         public Actor Parent;
         public List<Actor> Children;
 
-        public Actor(Actor parent)
+        public Actor()
         {
-            Parent = parent;
-
             Children = new List<Actor>();
         }
 
         public void AddChild(Actor child)
         {
+            child.Parent = this;
+            child.Scene = Scene;
             Children.Add(child);
+        }
+
+        public void RemoveChild(Actor child)
+        {
+            Children.Remove(child);
         }
 
         public virtual void LoadContent(ContentManager contentManager)
         {
+            SpriteBatch = Scene.SpriteBatch;
+            LineBatch = Scene.LineBatch;
+            PointBatch = Scene.PointBatch;
+            PrimitiveBatch = Scene.PrimitiveBatch;
+            SpriteFont = Scene.SpriteFont;
+
             foreach (Actor a in Children)
             {
-                a.SpriteBatch = SpriteBatch;
-                a.LineBatch = LineBatch;
-                a.PointBatch = PointBatch;
-                a.PrimitiveBatch = PrimitiveBatch;
-                a.SpriteFont = SpriteFont;
-
                 a.LoadContent(contentManager);
             }
         }
 
-        public virtual void Update()
+        public virtual void Update(GameTimerEventArgs e)
         {
             foreach (Actor a in Children)
-                a.Update();
+                a.Update(e);
         }
 
         public virtual void Draw(Camera3D camera)
